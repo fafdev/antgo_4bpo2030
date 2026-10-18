@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CodeListController;
 use App\Http\Controllers\CodeListItemController;
+use App\Http\Controllers\ContactsController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -18,6 +19,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('{codeList}/items', [CodeListItemController::class, 'store'])->name('items.store');
         Route::patch('{codeList}/items/{codeListItem}', [CodeListItemController::class, 'update'])->name('items.update');
         Route::delete('{codeList}/items/{codeListItem}', [CodeListItemController::class, 'destroy'])->name('items.destroy');
+    });
+
+    Route::prefix('contacts')->name('contacts.')->group(function () {
+        Route::get('/', [ContactsController::class, 'index'])->name('index');
+        Route::post('/', [ContactsController::class, 'store'])->name('store');
+        Route::get('template-csv', [ContactsController::class, 'downloadTemplateCsv'])->name('template-csv');
+        Route::post('import-csv', [ContactsController::class, 'importCsv'])->name('import-csv');
+        Route::get('{contact}/edit', [ContactsController::class, 'edit'])->name('edit');
+        Route::put('{contact}', [ContactsController::class, 'update'])->name('update');
+        Route::delete('{contact}', [ContactsController::class, 'destroy'])->name('destroy');
     });
 });
 

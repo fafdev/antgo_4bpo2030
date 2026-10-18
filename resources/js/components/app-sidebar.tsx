@@ -1,5 +1,11 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, ListChecks } from 'lucide-react';
+import {
+    BookOpen,
+    ContactRound,
+    FolderGit2,
+    LayoutGrid,
+    ListChecks,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -14,6 +20,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { index as codeListsIndex } from '@/routes/code-lists';
+import { index as contactsIndex } from '@/routes/contacts';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
@@ -27,6 +34,11 @@ const mainNavItems: NavItem[] = [
         title: 'Code lists',
         href: codeListsIndex(),
         icon: ListChecks,
+    },
+    {
+        title: 'Contacts',
+        href: contactsIndex(),
+        icon: ContactRound,
     },
 ];
 

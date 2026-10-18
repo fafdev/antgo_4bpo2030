@@ -1,23 +1,23 @@
-import { Form, Head, router } from '@inertiajs/react';
-import { ChevronDown, Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import CodeListController from '@/actions/App/Http/Controllers/CodeListController';
-import CodeListItemController from '@/actions/App/Http/Controllers/CodeListItemController';
-import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Form, Head, router } from "@inertiajs/react";
+import { ChevronDown, Search, ListChecks } from "lucide-react";
+import { useEffect, useState } from "react";
+import CodeListController from "@/actions/App/Http/Controllers/CodeListController";
+import CodeListItemController from "@/actions/App/Http/Controllers/CodeListItemController";
+import Heading from "@/components/heading";
+import InputError from "@/components/input-error";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
-import { index } from '@/routes/code-lists';
+} from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { index } from "@/routes/code-lists";
 
-const expandedListsStorageKey = 'code-lists.expanded-ids';
+const expandedListsStorageKey = "code-lists.expanded-ids";
 
 type CodeListItem = {
     id: number;
@@ -42,7 +42,7 @@ type Props = {
 };
 
 function readExpandedIds(): number[] {
-    if (typeof sessionStorage === 'undefined') {
+    if (typeof sessionStorage === "undefined") {
         return [];
     }
 
@@ -59,14 +59,14 @@ function readExpandedIds(): number[] {
             return [];
         }
 
-        return parsed.filter((id): id is number => typeof id === 'number');
+        return parsed.filter((id): id is number => typeof id === "number");
     } catch {
         return [];
     }
 }
 
 function writeExpandedIds(ids: number[]): void {
-    if (typeof sessionStorage === 'undefined') {
+    if (typeof sessionStorage === "undefined") {
         return;
     }
 
@@ -105,14 +105,14 @@ export default function CodeLists({ codeLists, filters }: Props) {
 
             router.get(
                 index.url({
-                    query: nextSearch === '' ? {} : { search: nextSearch },
+                    query: nextSearch === "" ? {} : { search: nextSearch },
                 }),
                 {},
                 {
                     preserveState: true,
                     preserveScroll: true,
                     replace: true,
-                    only: ['codeLists', 'filters'],
+                    only: ["codeLists", "filters"],
                 },
             );
         }, 300);
@@ -147,13 +147,28 @@ export default function CodeLists({ codeLists, filters }: Props) {
             <Head title="Code lists" />
 
             <div className="space-y-8 p-4">
-                <Heading
-                    title="Code lists"
-                    description="Manage your code lists and their items"
-                />
+                <div className="flex items-center gap-3">
+                    <ListChecks
+                        className="h-8 w-8 shrink-0"
+                        aria-hidden="true"
+                    />
+                    <h1 className="text-xl font-semibold">Code lists</h1>
+                </div>
+
+                <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                        Manage your code lists and their items.
+                    </p>
+
+                    <p className="text-sm font-medium text-green-600">
+                        Total Code Lists: {codeLists.length}
+                    </p>
+                </div>
 
                 <div className="rounded-xl border p-4">
-                    <h2 className="mb-4 text-sm font-semibold">Create code list</h2>
+                    <h2 className="mb-4 text-sm font-semibold">
+                        Create code list
+                    </h2>
 
                     <Form
                         {...CodeListController.store.form()}
@@ -185,7 +200,9 @@ export default function CodeLists({ codeLists, filters }: Props) {
                                 </div>
 
                                 <div className="self-end">
-                                    <Button disabled={processing}>Create</Button>
+                                    <Button disabled={processing}>
+                                        Create
+                                    </Button>
                                 </div>
                             </>
                         )}
@@ -194,13 +211,17 @@ export default function CodeLists({ codeLists, filters }: Props) {
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div className="grid gap-2 sm:max-w-sm sm:flex-1">
-                        <Label htmlFor="code_list_search">Search description</Label>
+                        <Label htmlFor="code_list_search">
+                            Search description
+                        </Label>
                         <div className="relative">
                             <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                             <Input
                                 id="code_list_search"
                                 value={search}
-                                onChange={(event) => setSearch(event.target.value)}
+                                onChange={(event) =>
+                                    setSearch(event.target.value)
+                                }
                                 placeholder="Filter by name..."
                                 className="pl-9"
                             />
@@ -234,9 +255,9 @@ export default function CodeLists({ codeLists, filters }: Props) {
                 <div className="space-y-6">
                     {codeLists.length === 0 && (
                         <p className="text-sm text-muted-foreground">
-                            {filters.search !== ''
-                                ? 'No code lists match this description.'
-                                : 'No code lists yet.'}
+                            {filters.search !== ""
+                                ? "No code lists match this description."
+                                : "No code lists yet."}
                         </p>
                     )}
 
@@ -267,7 +288,7 @@ function CodeListCard({
 }) {
     const itemCountLabel =
         codeList.items.length === 1
-            ? '1 item'
+            ? "1 item"
             : `${codeList.items.length} items`;
 
     return (
@@ -279,19 +300,29 @@ function CodeListCard({
                 >
                     {({ errors, processing }) => (
                         <>
-                            <div className="grid gap-2">
-                                <Label htmlFor={`key_${codeList.id}`}>Key</Label>
+                            <div className="grid w-90 gap-2">
+                                <Label
+                                    htmlFor={`key_${codeList.id}`}
+                                    className="font-extrabold text-sky-700"
+                                >
+                                    Key
+                                </Label>
+
                                 <Input
                                     id={`key_${codeList.id}`}
                                     name="key"
                                     defaultValue={codeList.key}
                                     required
+                                    className="h-8 px-2 text-sm font-semibold"
                                 />
+
                                 <InputError message={errors.key} />
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor={`name_${codeList.id}`}>Name</Label>
+                                <Label htmlFor={`name_${codeList.id}`}>
+                                    Name
+                                </Label>
                                 <Input
                                     id={`name_${codeList.id}`}
                                     name="name"
@@ -344,11 +375,11 @@ function CodeListCard({
                             size="sm"
                             aria-expanded={itemsOpen}
                         >
-                            {itemsOpen ? 'Collapse items' : 'Expand items'}
+                            {itemsOpen ? "Collapse items" : "Expand items"}
                             <ChevronDown
                                 className={cn(
-                                    'size-4 transition-transform',
-                                    itemsOpen && 'rotate-180',
+                                    "size-4 transition-transform",
+                                    itemsOpen && "rotate-180",
                                 )}
                             />
                         </Button>
@@ -377,7 +408,9 @@ function CodeListCard({
                                 {({ errors, processing }) => (
                                     <>
                                         <div className="grid gap-2">
-                                            <Label htmlFor={`item_code_${item.id}`}>
+                                            <Label
+                                                htmlFor={`item_code_${item.id}`}
+                                            >
                                                 Code
                                             </Label>
                                             <Input
@@ -401,7 +434,9 @@ function CodeListCard({
                                                 defaultValue={item.label}
                                                 required
                                             />
-                                            <InputError message={errors.label} />
+                                            <InputError
+                                                message={errors.label}
+                                            />
                                         </div>
 
                                         <div className="grid gap-2">
@@ -443,7 +478,9 @@ function CodeListCard({
                                                     defaultChecked={item.active}
                                                 />
                                             </div>
-                                            <InputError message={errors.active} />
+                                            <InputError
+                                                message={errors.active}
+                                            />
                                         </div>
 
                                         <div className="self-end">
@@ -557,7 +594,9 @@ function CodeListCard({
                                 </div>
 
                                 <div className="self-end">
-                                    <Button disabled={processing}>Add item</Button>
+                                    <Button disabled={processing}>
+                                        Add item
+                                    </Button>
                                 </div>
                             </>
                         )}
@@ -571,7 +610,7 @@ function CodeListCard({
 CodeLists.layout = {
     breadcrumbs: [
         {
-            title: 'Code lists',
+            title: "Code lists",
             href: index(),
         },
     ],

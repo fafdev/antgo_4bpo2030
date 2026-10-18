@@ -18,21 +18,32 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('password'),
-        ]);
+        if (! User::query()->where('email', 'test@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'password' => bcrypt('password'),
+            ]);
+        }
 
-        $documentStatusList = CodeList::query()->create([
-            'key' => 'document_status',
-            'name' => 'Document Status',
-        ]);
+        $documentStatusList = CodeList::query()->firstOrCreate(
+            ['key' => 'role_codelist'],
+            ['name' => 'Roles for application'],
+        );
 
-        $documentStatusList->items()->createMany([
-            ['code' => 'draft', 'label' => 'Draft', 'sort_order' => 10, 'active' => true],
-            ['code' => 'published', 'label' => 'Published', 'sort_order' => 20, 'active' => true],
-            ['code' => 'archived', 'label' => 'Archived', 'sort_order' => 30, 'active' => true],
-        ]);
+        foreach ([
+            ['code' => 'admin', 'label' => 'Admin', 'sort_order' => 10, 'active' => true],
+            ['code' => 'editor', 'label' => 'Editor', 'sort_order' => 20, 'active' => true],
+            ['code' => 'viewer', 'label' => 'Viewer', 'sort_order' => 30, 'active' => true],
+        ] as $item) {
+            $documentStatusList->items()->updateOrCreate(
+                ['code' => $item['code']],
+                [
+                    'label' => $item['label'],
+                    'sort_order' => $item['sort_order'],
+                    'active' => $item['active'],
+                ],
+            );
+        }
     }
 }
