@@ -6,6 +6,7 @@ use Database\Factories\ContactsFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 
@@ -24,8 +25,9 @@ use Illuminate\Support\Carbon;
  * @property string|null $email
  * @property string|null $phone
  * @property string|null $mobilePhone
+ * @property int|null $jobs_codelist
  */
-#[Fillable(['id', 'code', 'type', 'taxId', 'formatedName', 'name', 'middleName', 'lastName', 'companyName', 'gender', 'birthDate', 'email', 'phone', 'mobilePhone'])]
+#[Fillable(['id', 'code', 'type', 'taxId', 'formatedName', 'jobs_codelist', 'name', 'middleName', 'lastName', 'companyName', 'gender', 'birthDate', 'email', 'phone', 'mobilePhone'])]
 class Contacts extends Model
 {
     /** @use HasFactory<ContactsFactory> */
@@ -34,6 +36,14 @@ class Contacts extends Model
     public $incrementing = false;
 
     protected $keyType = 'string';
+
+    /**
+     * @return BelongsTo<CodeListItem, $this>
+     */
+    public function jobsCodelist(): BelongsTo
+    {
+        return $this->belongsTo(CodeListItem::class, 'jobs_codelist');
+    }
 
     /**
      * @return MorphMany<Address, $this>

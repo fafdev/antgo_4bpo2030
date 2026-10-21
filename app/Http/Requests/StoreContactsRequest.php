@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\CodeList;
 use App\Models\Contacts;
 use App\Support\SpanishTaxId;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -13,11 +14,6 @@ class StoreContactsRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function authorize(): bool
     {
         return $this->user()?->can('create', Contacts::class) ?? false;
@@ -26,7 +22,7 @@ class StoreContactsRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, array<int, ValidationRule|string>|string>
+     * @return array<string, array<int, \Closure|ValidationRule|string>|string>
      */
     public function rules(): array
     {
@@ -47,6 +43,15 @@ class StoreContactsRequest extends FormRequest
             'lastName' => ['nullable', 'string', 'max:255'],
             'companyName' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', Rule::in(['Hombre', 'Mujer', 'Other'])],
+            'jobs_codelist' => [
+                'nullable',
+                'integer',
+                Rule::exists('code_list_items', 'id')
+                    ->where(fn ($query) => $query->whereIn(
+                        'code_list_id',
+                        CodeList::query()->select('id')->where('key', 'jobs_codelist'),
+                    )),
+            ],
             'birthDate' => ['nullable', 'date'],
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],

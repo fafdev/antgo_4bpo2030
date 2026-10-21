@@ -1,10 +1,11 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
     ContactRound,
     FolderGit2,
     LayoutGrid,
     ListChecks,
+    UsersRound,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -21,26 +22,9 @@ import {
 } from '@/components/ui/sidebar';
 import { index as codeListsIndex } from '@/routes/code-lists';
 import { index as contactsIndex } from '@/routes/contacts';
+import { index as usersIndex } from '@/routes/users';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
-
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Code lists',
-        href: codeListsIndex(),
-        icon: ListChecks,
-    },
-    {
-        title: 'Contacts',
-        href: contactsIndex(),
-        icon: ContactRound,
-    },
-];
 
 const footerNavItems: NavItem[] = [
     {
@@ -56,6 +40,34 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage().props;
+    const mainNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+        {
+            title: 'Code lists',
+            href: codeListsIndex(),
+            icon: ListChecks,
+        },
+        {
+            title: 'Contacts',
+            href: contactsIndex(),
+            icon: ContactRound,
+        },
+        ...(auth.is_admin
+            ? [
+                {
+                    title: 'Users',
+                    href: usersIndex(),
+                    icon: UsersRound,
+                },
+            ]
+            : []),
+    ];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>

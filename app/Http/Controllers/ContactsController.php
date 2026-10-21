@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Contacts\ContactImportCsvRequest;
 use App\Http\Requests\StoreContactsRequest;
 use App\Http\Requests\UpdateContactsRequest;
+use App\Models\CodeListItem;
 use App\Models\Contacts;
 use App\Support\SpanishTaxId;
 use Illuminate\Http\RedirectResponse;
@@ -28,6 +29,7 @@ class ContactsController extends Controller
         $this->authorize('viewAny', Contacts::class);
 
         $contacts = Contacts::query()
+            ->with('jobsCodelist:id,label')
             ->orderBy('code')
             ->get()
             ->map(fn (Contacts $contact): array => [
@@ -36,6 +38,8 @@ class ContactsController extends Controller
                 'type' => $contact->type,
                 'taxId' => $contact->taxId,
                 'formatedName' => $contact->formatedName,
+                'jobs_codelist' => $contact->jobs_codelist,
+                'jobs_label' => $contact->jobsCodelist?->label,
                 'name' => $contact->name,
                 'middleName' => $contact->middleName,
                 'lastName' => $contact->lastName,
@@ -51,6 +55,7 @@ class ContactsController extends Controller
 
         return Inertia::render('contacts/index', [
             'contacts' => $contacts,
+            'jobs' => $this->jobOptions(),
         ]);
     }
 
@@ -90,6 +95,7 @@ class ContactsController extends Controller
                 'type' => $contact->type,
                 'taxId' => $contact->taxId,
                 'formatedName' => $contact->formatedName,
+                'jobs_codelist' => $contact->jobs_codelist,
                 'name' => $contact->name,
                 'middleName' => $contact->middleName,
                 'lastName' => $contact->lastName,
@@ -117,6 +123,7 @@ class ContactsController extends Controller
                     ->values()
                     ->all(),
             ],
+            'jobs' => $this->jobOptions($contact->jobs_codelist),
         ]);
     }
 
@@ -278,9 +285,9 @@ class ContactsController extends Controller
     }
 
     /**
-     * @param  array{taxId: string, name?: ?string, middleName?: ?string, lastName?: ?string, companyName?: ?string, gender?: ?string, birthDate?: ?string, email?: ?string, phone?: ?string}  $payload
+     * @param  array{taxId: string, name?: ?string, middleName?: ?string, lastName?: ?string, companyName?: ?string, gender?: ?string, birthDate?: ?string, email?: ?string, phone?: ?string, mobilePhone?: ?string, jobs_codelist?: int|null}  $payload
      * @param  'Persona'|'Empresa'|null  $lockedType
-     * @return array{id: string, code: string, type: 'Persona'|'Empresa', taxId: string, formatedName: string, name: ?string, middleName: ?string, lastName: ?string, companyName: ?string, gender: ?string, birthDate: ?string, email: ?string, phone: ?string, mobilePhone: ?string}
+     * @return array{id: string, code: string, type: 'Persona'|'Empresa', taxId: string, formatedName: string, jobs_codelist: int|null, name: ?string, middleName: ?string, lastName: ?string, companyName: ?string, gender: ?string, birthDate: ?string, email: ?string, phone: ?string, mobilePhone: ?string}
      */
     private function normalizePayload(array $payload, ?string $id = null, ?string $lockedType = null, ?string $lockedCode = null): array
     {
@@ -339,6 +346,9 @@ class ContactsController extends Controller
             'type' => $type,
             'taxId' => $taxId,
             'formatedName' => $formatedName,
+            'jobs_codelist' => isset($payload['jobs_codelist'])
+                ? (int) $payload['jobs_codelist']
+                : null,
             'name' => $name,
             'middleName' => $middleName,
             'lastName' => $lastName,
@@ -349,6 +359,30 @@ class ContactsController extends Controller
             'phone' => $phone,
             'mobilePhone' => $mobilePhone,
         ];
+    }
+
+    /**
+     * @return array<int, array{id: int, label: string}>
+     */
+    private function jobOptions(?int $selectedJobId = null): array
+    {
+        return CodeListItem::query()
+            ->whereHas('codeList', fn ($query) => $query->where('key', 'jobs_codelist'))
+            ->where(function ($query) use ($selectedJobId): void {
+                $query->where('active', true);
+
+                if ($selectedJobId !== null) {
+                    $query->orWhereKey($selectedJobId);
+                }
+            })
+            ->orderBy('sort_order')
+            ->orderBy('label')
+            ->get(['id', 'label'])
+            ->map(fn (CodeListItem $job): array => [
+                'id' => $job->id,
+                'label' => $job->label,
+            ])
+            ->all();
     }
 
     /**

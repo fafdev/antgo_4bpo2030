@@ -15,6 +15,8 @@ type Contact = {
     type: 'Persona' | 'Empresa';
     taxId: string;
     formatedName: string;
+    jobs_codelist: number | null;
+    jobs_label: string | null;
     name: string | null;
     middleName: string | null;
     lastName: string | null;
@@ -44,12 +46,14 @@ type Address = {
 
 type Props = {
     contacts: Contact[];
+    jobs: { id: number; label: string }[];
 };
 
-export default function ContactsIndex({ contacts }: Props) {
+export default function ContactsIndex({ contacts, jobs }: Props) {
     const createForm = useForm({
         taxId: '',
         formatedName: '',
+        jobs_codelist: '',
         name: '',
         middleName: '',
         lastName: '',
@@ -97,6 +101,7 @@ export default function ContactsIndex({ contacts }: Props) {
                 contact.type,
                 contact.taxId,
                 contact.formatedName,
+                contact.jobs_label ?? '',
                 contact.name ?? '',
                 contact.middleName ?? '',
                 contact.lastName ?? '',
@@ -266,6 +271,25 @@ export default function ContactsIndex({ contacts }: Props) {
                                 required
                             />
                             <InputError message={createForm.errors.taxId} />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="jobs_codelist">Job</Label>
+                            <select
+                                id="jobs_codelist"
+                                name="jobs_codelist"
+                                className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                value={createForm.data.jobs_codelist}
+                                onChange={(event) => createForm.setData('jobs_codelist', event.target.value)}
+                            >
+                                <option value="">No job</option>
+                                {jobs.map((job) => (
+                                    <option key={job.id} value={job.id}>
+                                        {job.label}
+                                    </option>
+                                ))}
+                            </select>
+                            <InputError message={createForm.errors.jobs_codelist} />
                         </div>
 
                         {showCompanyFields && (
@@ -573,6 +597,7 @@ export default function ContactsIndex({ contacts }: Props) {
                                     <th className="px-2 py-3 font-medium">Type</th>
                                     <th className="px-2 py-3 font-medium">CIF / NIF / NIE</th>
                                     <th className="px-2 py-3 font-medium">Formatted name</th>
+                                    <th className="px-2 py-3 font-medium">Job</th>
                                     <th className="px-2 py-3 font-medium">Email</th>
                                     <th className="px-2 py-3 font-medium">Phone</th>
                                     <th className="px-2 py-3 font-medium">Mobile Phone</th>
@@ -583,7 +608,7 @@ export default function ContactsIndex({ contacts }: Props) {
                             <tbody>
                                 {filteredContacts.length === 0 ? (
                                     <tr>
-                                        <td colSpan={8} className="px-2 py-6 text-center text-muted-foreground">
+                                        <td colSpan={10} className="px-2 py-6 text-center text-muted-foreground">
                                             No rows match the current filters.
                                         </td>
                                     </tr>
@@ -594,6 +619,7 @@ export default function ContactsIndex({ contacts }: Props) {
                                             <td className="px-2 py-3">{contact.type}</td>
                                             <td className="px-2 py-3">{contact.taxId}</td>
                                             <td className="px-2 py-3">{contact.formatedName}</td>
+                                            <td className="px-2 py-3">{contact.jobs_label ?? '-'}</td>
                                             <td className="px-2 py-3">{contact.email ?? '-'}</td>
                                             <td className="px-2 py-3">{contact.phone ?? '-'}</td>
                                             <td className="px-2 py-3">{contact.mobilePhone ?? '-'}</td>

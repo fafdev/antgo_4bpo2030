@@ -3,12 +3,20 @@
 use App\Http\Controllers\CodeListController;
 use App\Http\Controllers\CodeListItemController;
 use App\Http\Controllers\ContactsController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
+
+    Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('{user}/edit', 'edit')->name('edit');
+        Route::put('{user}', 'update')->name('update');
+    });
 
     Route::prefix('code-lists')->name('code-lists.')->scopeBindings()->group(function () {
         Route::get('/', [CodeListController::class, 'index'])->name('index');

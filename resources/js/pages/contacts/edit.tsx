@@ -12,6 +12,7 @@ type Contact = {
     code: string;
     taxId: string;
     formatedName: string;
+    jobs_codelist: number | null;
     name: string | null;
     middleName: string | null;
     lastName: string | null;
@@ -39,12 +40,14 @@ type Address = {
 
 type Props = {
     contact: Contact;
+    jobs: { id: number; label: string }[];
 };
 
-export default function ContactsEdit({ contact }: Props) {
+export default function ContactsEdit({ contact, jobs }: Props) {
     const form = useForm({
         taxId: contact.taxId,
         formatedName: contact.formatedName,
+        jobs_codelist: contact.jobs_codelist?.toString() ?? '',
         name: contact.name ?? '',
         middleName: contact.middleName ?? '',
         lastName: contact.lastName ?? '',
@@ -211,6 +214,25 @@ export default function ContactsEdit({ contact }: Props) {
                             required
                         />
                         <InputError message={form.errors.taxId} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="jobs_codelist">Job</Label>
+                        <select
+                            id="jobs_codelist"
+                            name="jobs_codelist"
+                            className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            value={form.data.jobs_codelist}
+                            onChange={(event) => form.setData('jobs_codelist', event.target.value)}
+                        >
+                            <option value="">No job</option>
+                            {jobs.map((job) => (
+                                <option key={job.id} value={job.id}>
+                                    {job.label}
+                                </option>
+                            ))}
+                        </select>
+                        <InputError message={form.errors.jobs_codelist} />
                     </div>
 
                     {showCompanyFields && (
